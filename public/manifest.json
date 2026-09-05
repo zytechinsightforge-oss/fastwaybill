@@ -1,0 +1,43 @@
+{
+  "name": "FastWaybill Logistics",
+  "short_name": "FastWaybill",
+  "description": "Anything. Anywhere. On Time. Nigeria's #1 dual-mode logistics platform.",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0D1F47",
+  "theme_color": "#F5820D",
+  "icons": [
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["transportation", "logistics", "delivery"],
+  "lang": "en-NG",
+  "screenshots": [],
+  "shortcuts": [
+    {
+      "name": "Book a Ride",
+      "short_name": "Ride",
+      "description": "Book a flat-rate ride now",
+      "url": "/ride",
+      "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Send a Parcel",
+      "short_name": "Dispatch",
+      "description": "Send a parcel with upfront pricing",
+      "url": "/dispatch",
+      "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }]
+    }
+  ]
+}

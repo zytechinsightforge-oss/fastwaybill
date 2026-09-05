@@ -1,0 +1,10 @@
+{
+  "title": "FastWaybill — Anything, Anywhere, On Time",
+  "description": "Nigeria's dual-mode logistics and mobility platform. Book rides and send parcels with flat-rate pricing, real GPS tracking, and secure payments.",
+  "robots": {
+    "index": true
+  },
+  "accessibility": {
+    "addBypassLinks": false
+  }
+}

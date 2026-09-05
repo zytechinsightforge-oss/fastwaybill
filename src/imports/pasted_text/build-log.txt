@@ -1,0 +1,74 @@
+2026-09-05T16:26:28.004Z	Initializing build environment...
+2026-09-05T16:26:28.004Z	Initializing build environment...
+2026-09-05T16:26:30.113Z	Success: Finished initializing build environment
+2026-09-05T16:26:30.837Z	Cloning repository...
+2026-09-05T16:26:32.875Z	Detected the following tools from environment: pnpm@10.11.1, nodejs@24.18.0
+2026-09-05T16:26:32.877Z	Restoring from dependencies cache
+2026-09-05T16:26:32.879Z	Restoring from build output cache
+2026-09-05T16:26:32.976Z	Installing project dependencies: pnpm install --frozen-lockfile
+2026-09-05T16:26:34.385Z	(node:448) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+2026-09-05T16:26:34.385Z	(Use `node --trace-deprecation ...` to show where the warning was created)
+2026-09-05T16:26:34.413Z	Lockfile is up to date, resolution step is skipped
+2026-09-05T16:26:34.486Z	Progress: resolved 1, reused 0, downloaded 0, added 0
+2026-09-05T16:26:34.541Z	Packages: +180
+2026-09-05T16:26:34.541Z	++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+2026-09-05T16:26:35.487Z	Progress: resolved 180, reused 0, downloaded 103, added 92
+2026-09-05T16:26:36.487Z	Progress: resolved 180, reused 0, downloaded 167, added 159
+2026-09-05T16:26:37.306Z	Progress: resolved 180, reused 0, downloaded 180, added 180, done
+2026-09-05T16:26:37.472Z	
+2026-09-05T16:26:37.472Z	dependencies:
+2026-09-05T16:26:37.473Z	+ @capacitor/android 8.5.1
+2026-09-05T16:26:37.473Z	+ @capacitor/cli 8.5.1
+2026-09-05T16:26:37.474Z	+ @capacitor/core 8.5.1
+2026-09-05T16:26:37.475Z	+ @capacitor/geolocation 8.2.2
+2026-09-05T16:26:37.475Z	+ @capacitor/splash-screen 8.0.2
+2026-09-05T16:26:37.476Z	+ @capacitor/status-bar 8.0.3
+2026-09-05T16:26:37.476Z	+ @supabase/supabase-js 2.115.0
+2026-09-05T16:26:37.476Z	+ maplibre-gl 6.6.0
+2026-09-05T16:26:37.476Z	+ react 19.2.4
+2026-09-05T16:26:37.476Z	+ react-dom 19.2.4
+2026-09-05T16:26:37.476Z	+ react-router 8.3.0
+2026-09-05T16:26:37.477Z	
+2026-09-05T16:26:37.477Z	devDependencies:
+2026-09-05T16:26:37.477Z	+ @tailwindcss/vite 4.2.2
+2026-09-05T16:26:37.477Z	+ @types/node 22.19.17
+2026-09-05T16:26:37.477Z	+ @types/react 19.2.14
+2026-09-05T16:26:37.477Z	+ @types/react-dom 19.2.3
+2026-09-05T16:26:37.478Z	+ @vitejs/plugin-react 6.0.1
+2026-09-05T16:26:37.478Z	+ oxfmt 0.2.0
+2026-09-05T16:26:37.478Z	+ sharp 0.35.4
+2026-09-05T16:26:37.478Z	+ tailwindcss 4.2.2
+2026-09-05T16:26:37.478Z	+ typescript 5.9.3
+2026-09-05T16:26:37.479Z	+ vite 8.0.5
+2026-09-05T16:26:37.479Z	
+2026-09-05T16:26:37.490Z	Done in 3.8s
+2026-09-05T16:26:37.740Z	Executing user build command: pnpm run build
+2026-09-05T16:26:38.214Z	
+2026-09-05T16:26:38.214Z	> figma-make-app@1.0.0 build /opt/buildhome/repo
+2026-09-05T16:26:38.214Z	> vite build
+2026-09-05T16:26:38.214Z	
+2026-09-05T16:26:38.434Z	failed to load config from /opt/buildhome/repo/vite.config.ts
+2026-09-05T16:26:38.435Z	error during build:
+2026-09-05T16:26:38.435Z	Error: Build failed with 1 error:
+2026-09-05T16:26:38.435Z	
+2026-09-05T16:26:38.435Z	[UNRESOLVED_IMPORT] Error: Could not resolve './.figma/make/site.json' in vite.config.ts
+2026-09-05T16:26:38.435Z	   ╭─[ vite.config.ts:6:31 ]
+2026-09-05T16:26:38.436Z	   │
+2026-09-05T16:26:38.436Z	 6 │ import siteConfiguration from './.figma/make/site.json'
+2026-09-05T16:26:38.436Z	   │                               ────────────┬────────────  
+2026-09-05T16:26:38.436Z	   │                                           ╰────────────── Module not found.
+2026-09-05T16:26:38.436Z	───╯
+2026-09-05T16:26:38.436Z	
+2026-09-05T16:26:38.436Z	    at aggregateBindingErrorsIntoJsError (file:///opt/buildhome/repo/node_modules/.pnpm/rolldown@1.0.0-rc.12/node_modules/rolldown/dist/shared/error-BLhcSyeg.mjs:48:18)
+2026-09-05T16:26:38.436Z	    at unwrapBindingResult (file:///opt/buildhome/repo/node_modules/.pnpm/rolldown@1.0.0-rc.12/node_modules/rolldown/dist/shared/error-BLhcSyeg.mjs:18:128)
+2026-09-05T16:26:38.437Z	    at #build (file:///opt/buildhome/repo/node_modules/.pnpm/rolldown@1.0.0-rc.12/node_modules/rolldown/dist/shared/rolldown-build-CPrIX9V6.mjs:3313:34)
+2026-09-05T16:26:38.437Z	    at async bundleConfigFile (file:///opt/buildhome/repo/node_modules/.pnpm/vite@8.0.5_@types+node@22.19.17_jiti@2.6.1/node_modules/vite/dist/node/chunks/node.js:34618:17)
+2026-09-05T16:26:38.437Z	    at async bundleAndLoadConfigFile (file:///opt/buildhome/repo/node_modules/.pnpm/vite@8.0.5_@types+node@22.19.17_jiti@2.6.1/node_modules/vite/dist/node/chunks/node.js:34526:18)
+2026-09-05T16:26:38.438Z	    at async loadConfigFromFile (file:///opt/buildhome/repo/node_modules/.pnpm/vite@8.0.5_@types+node@22.19.17_jiti@2.6.1/node_modules/vite/dist/node/chunks/node.js:34495:42)
+2026-09-05T16:26:38.438Z	    at async resolveConfig (file:///opt/buildhome/repo/node_modules/.pnpm/vite@8.0.5_@types+node@22.19.17_jiti@2.6.1/node_modules/vite/dist/node/chunks/node.js:34119:22)
+2026-09-05T16:26:38.439Z	    at async createBuilder (file:///opt/buildhome/repo/node_modules/.pnpm/vite@8.0.5_@types+node@22.19.17_jiti@2.6.1/node_modules/vite/dist/node/chunks/node.js:33336:17)
+2026-09-05T16:26:38.439Z	    at async CAC.<anonymous> (file:///opt/buildhome/repo/node_modules/.pnpm/vite@8.0.5_@types+node@22.19.17_jiti@2.6.1/node_modules/vite/dist/node/cli.js:767:19) {
+2026-09-05T16:26:38.439Z	  errors: [Getter/Setter]
+2026-09-05T16:26:38.439Z	}
+2026-09-05T16:26:38.448Z	 ELIFECYCLE  Command failed with exit code 1.
+2026-09-05T16:26:38.473Z	Failed: error occurred while running build command

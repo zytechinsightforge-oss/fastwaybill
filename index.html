@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="<!-- figma:lang -->">
+  <head>
+    <!-- figma:head-start -->
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>FastWaybill — Anything, Anywhere, On Time</title>
+    <meta name="description" content="Nigeria's #1 dual-mode logistics platform. Flat-rate rides, OTP parcel delivery, real GPS tracking." />
+    <meta name="theme-color" content="#F5820D" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="FastWaybill" />
+    <link rel="manifest" href="/manifest.json" />
+    <link rel="icon" href="/icons/icon-192.png" />
+    <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
+    <link rel="apple-touch-startup-image" href="/icons/icon-512.png" />
+    <!-- figma:head-end -->
+  </head>
+  <body>
+    <!-- figma:body-start -->
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+    <script>
+      if ("serviceWorker" in navigator) {
+        window.addEventListener("load", () => navigator.serviceWorker.register("/sw.js"));
+      }
+    </script>
+    <!-- figma:body-end -->
+  </body>
+</html>

@@ -1,21 +1,29 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { MOCK_TRANSACTIONS } from "../data/constants";
+import { useAuth } from "../context/AuthContext";
+
+const PAYSTACK_PUBLIC_KEY = "pk_test_a8d696328f6017bdc04e80ec0ed997410a85c5e0";
+const EDGE_BASE = "https://rbhptfneaqmfvdoafehq.supabase.co/functions/v1/make-server-a0892b1f";
 
 type Tab = "overview" | "topup" | "withdraw" | "history";
 
 const BANKS: Record<string, string> = {
   "Opay": "999992",
-  "GTBank": "058152522",
-  "First Bank": "011152303",
-  "Zenith Bank": "057083151",
-  "Access Bank": "044150149",
-  "UBA": "033153285",
+  "GTBank": "058",
+  "First Bank": "011",
+  "Zenith Bank": "057",
+  "Access Bank": "044",
+  "UBA": "033",
   "Kuda Bank": "090267",
   "Palmpay": "999991",
   "Moniepoint": "090405",
+  "Sterling Bank": "232",
+  "Wema Bank": "035",
+  "Fidelity Bank": "070",
 };
 
 export default function Wallet() {
+  const { user } = useAuth();
   const [tab, setTab] = useState<Tab>("overview");
   const [topupAmount, setTopupAmount] = useState("");
   const [withdrawAmount, setWithdrawAmount] = useState("");
@@ -23,9 +31,12 @@ export default function Wallet() {
   const [accountNo, setAccountNo] = useState("");
   const [accountName, setAccountName] = useState("");
   const [verifying, setVerifying] = useState(false);
+  const [verifyError, setVerifyError] = useState("");
   const [processing, setProcessing] = useState(false);
   const [withdrawStep, setWithdrawStep] = useState<"form" | "confirm" | "sent">("form");
   const [topupSuccess, setTopupSuccess] = useState(false);
+  const [withdrawError, setWithdrawError] = useState("");
+  const [transferRef, setTransferRef] = useState("");
 
   const balance = 24750;
   const totalIn = MOCK_TRANSACTIONS.filter(t => t.type === "credit").reduce((a, b) => a + b.amount, 0);
@@ -38,55 +49,97 @@ export default function Wallet() {
     { id: "history", label: "History" },
   ];
 
-  // Verify account name (mocked — in production calls Paystack /bank/resolve)
-  const verifyAccount = () => {
+  const userEmail = user?.email ?? "user@fastwaybill.ng";
+
+  const verifyAccount = async () => {
     if (accountNo.length < 10) return;
     setVerifying(true);
-    setTimeout(() => {
-      setAccountName("CHUKWUEMEKA OKAFOR");
+    setVerifyError("");
+    setAccountName("");
+    try {
+      const resp = await fetch(`${EDGE_BASE}/wallet/verify-account`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ account_number: accountNo, bank_code: BANKS[bankName] }),
+      });
+      const data = await resp.json();
+      if (data.account_name) {
+        setAccountName(data.account_name);
+      } else {
+        setVerifyError(data.error ?? "Could not verify account. Check the number and try again.");
+      }
+    } catch {
+      setVerifyError("Network error. Please try again.");
+    } finally {
       setVerifying(false);
-    }, 1400);
+    }
   };
 
-  const handleWithdraw = (e: React.FormEvent) => {
+  const handleWithdraw = async (e: React.FormEvent) => {
     e.preventDefault();
     if (withdrawStep === "form") {
       setWithdrawStep("confirm");
       return;
     }
     setProcessing(true);
-    // In production: POST /api/transfer with Paystack secret key on your server
-    setTimeout(() => {
+    setWithdrawError("");
+    try {
+      const resp = await fetch(`${EDGE_BASE}/wallet/transfer`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          amount: Number(withdrawAmount),
+          account_number: accountNo,
+          bank_code: BANKS[bankName],
+          account_name: accountName,
+          bank_name: bankName,
+          user_email: userEmail,
+        }),
+      });
+      const data = await resp.json();
+      if (data.success) {
+        setTransferRef(data.reference ?? "");
+        setWithdrawStep("sent");
+      } else {
+        setWithdrawError(data.error ?? "Transfer failed. Please try again.");
+      }
+    } catch {
+      setWithdrawError("Network error. Please try again.");
+    } finally {
       setProcessing(false);
-      setWithdrawStep("sent");
-    }, 2500);
+    }
   };
 
   const openPaystack = () => {
-    // Real Paystack inline payment — replace pk_test_... with your live public key
     const amount = Number(topupAmount);
     if (!amount || amount < 100) return;
 
-    const handler = (window as unknown as { PaystackPop?: { setup: (opts: Record<string, unknown>) => { openIframe: () => void } } }).PaystackPop;
-    if (handler) {
-      handler.setup({
-        key: "pk_test_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx", // ← replace with your Paystack public key
-        email: "user@fastwaybill.ng",
-        amount: amount * 100,
-        currency: "NGN",
-        ref: "FW-" + Date.now(),
-        metadata: { custom_fields: [{ display_name: "Wallet Top-up", variable_name: "wallet_topup", value: "true" }] },
-        callback: () => {
-          setTopupSuccess(true);
-          setTopupAmount("");
-          setTimeout(() => { setTopupSuccess(false); setTab("overview"); }, 3000);
-        },
-        onClose: () => {},
-      }).openIframe();
-    } else {
-      // Paystack.js not loaded — show USSD fallback
-      alert("Top-up via USSD: Dial *737*50*" + amount + "#\n\nOr bank transfer to:\nGTBank · 0521234567\nAccount name: FastWaybill Logistics Ltd");
+    const PaystackPop = (window as any).PaystackPop;
+    if (!PaystackPop) {
+      alert("Payment gateway not loaded. Please refresh the page and try again.");
+      return;
     }
+
+    const handler = PaystackPop.setup({
+      key: PAYSTACK_PUBLIC_KEY,
+      email: userEmail,
+      amount: amount * 100,
+      currency: "NGN",
+      ref: "FW-" + Date.now(),
+      metadata: {
+        custom_fields: [
+          { display_name: "Wallet Top-up", variable_name: "wallet_topup", value: "true" },
+          { display_name: "User", variable_name: "user_email", value: userEmail },
+        ],
+      },
+      callback: () => {
+        setTopupSuccess(true);
+        setTopupAmount("");
+        setTimeout(() => { setTopupSuccess(false); setTab("overview"); }, 3000);
+      },
+      onClose: () => {},
+    });
+    handler.openIframe();
   };
 
   return (
@@ -100,7 +153,7 @@ export default function Wallet() {
         <p className="font-outfit text-6xl font-900 text-white mb-1" style={{ fontFamily: "Outfit, sans-serif", fontWeight: 900 }}>
           ₦{balance.toLocaleString()}
         </p>
-        <p className="text-[#BAD8F7]/40 text-sm mb-4">0812 345 6789 · Chukwuemeka O.</p>
+        <p className="text-[#BAD8F7]/40 text-sm mb-4">{userEmail}</p>
         <div className="flex gap-3 justify-center">
           <button onClick={() => setTab("topup")} className="btn-primary px-6 py-2.5 rounded-xl text-sm">+ Top Up</button>
           <button onClick={() => setTab("withdraw")} className="btn-outline px-6 py-2.5 rounded-xl text-sm">Withdraw →</button>
@@ -110,7 +163,7 @@ export default function Wallet() {
       {/* Tabs */}
       <div className="flex gap-1 bg-white/5 rounded-2xl p-1 mb-6">
         {TABS.map(t => (
-          <button key={t.id} onClick={() => { setTab(t.id); setWithdrawStep("form"); }}
+          <button key={t.id} onClick={() => { setTab(t.id); setWithdrawStep("form"); setWithdrawError(""); }}
             className={`flex-1 py-2.5 rounded-xl text-sm font-semibold transition-all ${tab === t.id ? "bg-[#F5820D] text-white" : "text-[#BAD8F7]/60 hover:text-white"}`}>
             {t.label}
           </button>
@@ -158,7 +211,7 @@ export default function Wallet() {
         <div className="space-y-4">
           {topupSuccess && (
             <div className="bg-green-500/15 border border-green-500/40 rounded-2xl p-4 text-center">
-              <p className="text-green-400 font-semibold text-lg">✅ Payment Confirmed!</p>
+              <p className="text-green-400 font-semibold text-lg">Payment Confirmed!</p>
               <p className="text-[#BAD8F7]/60 text-sm mt-1">Your wallet has been funded.</p>
             </div>
           )}
@@ -191,21 +244,11 @@ export default function Wallet() {
               className="w-full flex items-center gap-4 p-4 rounded-xl border border-[#F5820D]/40 bg-[#F5820D]/8 hover:bg-[#F5820D]/15 transition-all disabled:opacity-40 disabled:cursor-not-allowed">
               <span className="text-2xl">💳</span>
               <div className="flex-1 text-left">
-                <p className="text-white font-semibold">Pay with Card / Paystack</p>
-                <p className="text-[#BAD8F7]/50 text-xs">Visa, Mastercard, Verve — secured & instant</p>
+                <p className="text-white font-semibold">Pay with Card / Bank</p>
+                <p className="text-[#BAD8F7]/50 text-xs">Visa, Mastercard, Verve, Bank Transfer — secured by Paystack</p>
               </div>
               <span className="text-[#F5820D] text-sm font-bold">→</span>
             </button>
-
-            <div className="glass-card rounded-xl p-4 border border-white/10">
-              <p className="text-white font-semibold text-sm mb-2 flex items-center gap-2"><span className="text-xl">🏦</span> Bank Transfer</p>
-              <div className="bg-black/20 rounded-lg p-3 space-y-1 text-sm" style={{ fontFamily: "JetBrains Mono, monospace" }}>
-                <div className="flex justify-between"><span className="text-[#BAD8F7]/50">Bank</span><span className="text-white">GTBank</span></div>
-                <div className="flex justify-between"><span className="text-[#BAD8F7]/50">Account No</span><span className="text-[#F5820D] font-bold">0521234567</span></div>
-                <div className="flex justify-between"><span className="text-[#BAD8F7]/50">Name</span><span className="text-white">FastWaybill Logistics Ltd</span></div>
-              </div>
-              <p className="text-[#BAD8F7]/40 text-xs mt-2">Transfer ₦{topupAmount || "0"} and your wallet tops up automatically within 60s.</p>
-            </div>
 
             <div className="glass-card rounded-xl p-4 border border-white/10">
               <p className="text-white font-semibold text-sm flex items-center gap-2"><span className="text-xl">📞</span> USSD (No internet needed)</p>
@@ -224,13 +267,12 @@ export default function Wallet() {
 
           {withdrawStep === "form" && (
             <form onSubmit={handleWithdraw} className="space-y-4">
-              {/* Info banner */}
               <div className="glass-card rounded-2xl p-4 border border-blue-400/20 flex gap-3">
                 <span className="text-2xl shrink-0">ℹ️</span>
                 <div>
                   <p className="text-white font-semibold text-sm">Real bank transfer</p>
                   <p className="text-[#BAD8F7]/60 text-xs leading-relaxed mt-1">
-                    Withdrawals are processed via <strong className="text-white">Paystack Transfer API</strong> and credited within <strong className="text-white">10 minutes</strong>. Opay, GTBank, Kuda, Palmpay, and all Nigerian banks are supported.
+                    Powered by <strong className="text-white">Paystack Transfer API</strong>. Credited within <strong className="text-white">10 minutes</strong> to any Nigerian bank or mobile wallet.
                   </p>
                 </div>
               </div>
@@ -245,30 +287,34 @@ export default function Wallet() {
                     className="w-full pl-10 pr-4 py-4 bg-white/5 rounded-2xl text-white text-3xl font-bold outline-none border border-white/10 focus:border-[#F5820D] transition-all placeholder-[#BAD8F7]/20"
                     style={{ fontFamily: "Outfit, sans-serif" }} />
                 </div>
-                <p className="text-[#BAD8F7]/40 text-xs">Available: ₦{balance.toLocaleString()} · Min withdrawal: ₦500</p>
+                <p className="text-[#BAD8F7]/40 text-xs">Available: ₦{balance.toLocaleString()} · Min: ₦500</p>
               </div>
 
               <div className="glass-card rounded-2xl p-5 space-y-4">
-                <p className="text-[#BAD8F7]/60 text-xs uppercase tracking-wide" style={{ fontFamily: "JetBrains Mono, monospace" }}>Bank / Mobile Money Account</p>
+                <p className="text-[#BAD8F7]/60 text-xs uppercase tracking-wide" style={{ fontFamily: "JetBrains Mono, monospace" }}>Destination Account</p>
 
-                <select value={bankName} onChange={e => { setBankName(e.target.value); setAccountName(""); }}
+                <select value={bankName} onChange={e => { setBankName(e.target.value); setAccountName(""); setVerifyError(""); }}
                   className="w-full bg-white/5 rounded-xl px-4 py-3 text-white outline-none border border-white/10 focus:border-[#F5820D] transition-all">
-                  {Object.keys(BANKS).map(b => <option key={b} value={b}>{b}</option>)}
+                  {Object.keys(BANKS).map(b => <option key={b} value={b} className="bg-[#0D1F47]">{b}</option>)}
                 </select>
 
                 <div className="flex gap-2">
                   <input
                     type="text" inputMode="numeric" maxLength={10} required value={accountNo}
-                    onChange={e => { setAccountNo(e.target.value); setAccountName(""); }}
+                    onChange={e => { setAccountNo(e.target.value); setAccountName(""); setVerifyError(""); }}
                     placeholder="Account / wallet number"
                     className="flex-1 bg-white/5 rounded-xl px-4 py-3 text-white outline-none border border-white/10 focus:border-[#F5820D] transition-all placeholder-[#BAD8F7]/30"
                     style={{ fontFamily: "JetBrains Mono, monospace" }}
                   />
                   <button type="button" onClick={verifyAccount} disabled={accountNo.length < 10 || verifying}
                     className="btn-primary px-4 py-3 rounded-xl text-sm disabled:opacity-50 shrink-0">
-                    {verifying ? "⏳" : "Verify"}
+                    {verifying ? "..." : "Verify"}
                   </button>
                 </div>
+
+                {verifyError && (
+                  <p className="text-red-400 text-xs">{verifyError}</p>
+                )}
 
                 {accountName && (
                   <div className="flex items-center gap-2 bg-green-500/10 border border-green-500/30 rounded-xl px-4 py-3">
@@ -305,15 +351,17 @@ export default function Wallet() {
                 <div className="flex justify-between"><span className="text-[#BAD8F7]/60">ETA</span><span className="text-white">Within 10 minutes</span></div>
               </div>
 
+              {withdrawError && (
+                <div className="bg-red-500/10 border border-red-500/30 rounded-xl p-3 text-red-400 text-sm">
+                  {withdrawError}
+                </div>
+              )}
+
               <button type="submit" disabled={processing}
                 className="btn-primary w-full py-4 rounded-2xl text-base disabled:opacity-50">
-                {processing ? (
-                  <span className="flex items-center justify-center gap-2">
-                    <span className="animate-spin">⏳</span> Processing transfer...
-                  </span>
-                ) : "Confirm & Send →"}
+                {processing ? "Processing transfer..." : "Confirm & Send →"}
               </button>
-              <button type="button" onClick={() => setWithdrawStep("form")} className="btn-outline w-full py-3 rounded-2xl text-sm">
+              <button type="button" onClick={() => { setWithdrawStep("form"); setWithdrawError(""); }} className="btn-outline w-full py-3 rounded-2xl text-sm">
                 ← Go back
               </button>
             </form>
@@ -328,9 +376,8 @@ export default function Wallet() {
                   ₦{Number(withdrawAmount).toLocaleString()} is on its way to <strong className="text-white">{accountName}</strong> on <strong className="text-white">{bankName}</strong>.
                 </p>
                 <div className="bg-[#0D1F47] rounded-2xl p-4 text-left space-y-2 text-sm">
-                  <div className="flex justify-between"><span className="text-[#BAD8F7]/60">Reference</span><span className="text-[#F5820D]" style={{ fontFamily: "JetBrains Mono, monospace" }}>FW-TRF-{Date.now().toString().slice(-6)}</span></div>
+                  <div className="flex justify-between"><span className="text-[#BAD8F7]/60">Reference</span><span className="text-[#F5820D]" style={{ fontFamily: "JetBrains Mono, monospace" }}>{transferRef || "FW-TRF-" + Date.now().toString().slice(-6)}</span></div>
                   <div className="flex justify-between"><span className="text-[#BAD8F7]/60">Expected by</span><span className="text-white">Within 10 minutes</span></div>
-                  <div className="flex justify-between"><span className="text-[#BAD8F7]/60">Support</span><span className="text-white">WhatsApp: wa.me/+2348100000000</span></div>
                 </div>
               </div>
               <button onClick={() => { setWithdrawStep("form"); setWithdrawAmount(""); setAccountName(""); setAccountNo(""); setTab("overview"); }}

@@ -136,8 +136,8 @@ export default function Home() {
                 <p className="text-[#BAD8F7]/60 text-[10px] uppercase tracking-widest mb-1" style={{ fontFamily: "JetBrains Mono, monospace" }}>FastWallet Balance</p>
                 <p className="text-white text-2xl font-outfit font-900" style={{ fontFamily: "Outfit, sans-serif", fontWeight: 900 }}>₦24,750</p>
                 <div className="flex items-center gap-2 mt-3">
-                  <Link to="/wallet" className="flex-1 bg-[#F5820D] text-white text-xs rounded-lg py-1.5 font-semibold text-center">Top Up</Link>
-                  <Link to="/wallet" className="flex-1 btn-outline text-xs rounded-lg py-1.5 text-center">Withdraw</Link>
+                  <Link to="/wallet?action=topup" className="flex-1 bg-[#F5820D] text-white text-xs rounded-lg py-1.5 font-semibold text-center">Top Up</Link>
+                  <Link to="/wallet?action=withdraw" className="flex-1 btn-outline text-xs rounded-lg py-1.5 text-center">Withdraw</Link>
                 </div>
               </div>
 

@@ -9,6 +9,14 @@ import Wallet from "./pages/Wallet";
 import Driver from "./pages/Driver";
 import Login from "./pages/Login";
 import AuthCallback from "./pages/AuthCallback";
+import AdminLayout from "./pages/admin/AdminLayout";
+import AdminOverview from "./pages/admin/AdminOverview";
+import AdminAnalytics from "./pages/admin/AdminAnalytics";
+import AdminAccounting from "./pages/admin/AdminAccounting";
+import AdminUsers from "./pages/admin/AdminUsers";
+import AdminOrders from "./pages/admin/AdminOrders";
+import AdminDrivers from "./pages/admin/AdminDrivers";
+import AdminSettings from "./pages/admin/AdminSettings";
 
 export const router = createBrowserRouter([
   {
@@ -25,6 +33,19 @@ export const router = createBrowserRouter([
       { path: "driver", Component: Driver },
       { path: "login", Component: Login },
       { path: "auth/callback", Component: AuthCallback },
+    ],
+  },
+  {
+    path: "/admin",
+    Component: AdminLayout,
+    children: [
+      { index: true, Component: AdminOverview },
+      { path: "analytics", Component: AdminAnalytics },
+      { path: "accounting", Component: AdminAccounting },
+      { path: "users", Component: AdminUsers },
+      { path: "orders", Component: AdminOrders },
+      { path: "drivers", Component: AdminDrivers },
+      { path: "settings", Component: AdminSettings },
     ],
   },
 ]);

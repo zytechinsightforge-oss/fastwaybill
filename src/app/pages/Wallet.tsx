@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useSearchParams } from "react-router";
 import { MOCK_TRANSACTIONS } from "../data/constants";
 import { useAuth } from "../context/AuthContext";
 import WalletSecurityGate from "../components/WalletSecurityGate";
@@ -25,10 +26,20 @@ const BANKS: Record<string, string> = {
 
 export default function Wallet() {
   const { user } = useAuth();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [tab, setTab] = useState<Tab>("overview");
   const [securityGate, setSecurityGate] = useState(false);
   const [pendingTab, setPendingTab] = useState<Tab | null>(null);
   const [walletUnlocked, setWalletUnlocked] = useState(false);
+
+  useEffect(() => {
+    const action = searchParams.get("action");
+    if (action === "topup" || action === "withdraw") {
+      setSearchParams({}, { replace: true });
+      requireSecurity(action as Tab);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const requireSecurity = (target: Tab) => {
     if (walletUnlocked) { setTab(target); return; }

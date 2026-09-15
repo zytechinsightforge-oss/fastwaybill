@@ -18,6 +18,7 @@ import AdminUsers from "./pages/admin/AdminUsers";
 import AdminOrders from "./pages/admin/AdminOrders";
 import AdminDrivers from "./pages/admin/AdminDrivers";
 import AdminSettings from "./pages/admin/AdminSettings";
+import AdminMap from "./pages/admin/AdminMap";
 
 export const router = createBrowserRouter([
   {
@@ -49,6 +50,7 @@ export const router = createBrowserRouter([
         Component: AdminLayout,
         children: [
           { index: true, Component: AdminOverview },
+          { path: "map", Component: AdminMap },
           { path: "analytics", Component: AdminAnalytics },
           { path: "accounting", Component: AdminAccounting },
           { path: "users", Component: AdminUsers },

@@ -9,6 +9,7 @@ import Wallet from "./pages/Wallet";
 import Driver from "./pages/Driver";
 import Login from "./pages/Login";
 import AuthCallback from "./pages/AuthCallback";
+import ProtectedRoute from "./components/ProtectedRoute";
 import AdminLayout from "./pages/admin/AdminLayout";
 import AdminOverview from "./pages/admin/AdminOverview";
 import AdminAnalytics from "./pages/admin/AdminAnalytics";
@@ -24,28 +25,38 @@ export const router = createBrowserRouter([
     Component: Root,
     children: [
       { index: true, Component: Home },
-      { path: "ride", Component: Ride },
-      { path: "dispatch", Component: Dispatch },
-      { path: "track", Component: Track },
-      { path: "track/:id", Component: Track },
-      { path: "dashboard", Component: Dashboard },
-      { path: "wallet", Component: Wallet },
-      { path: "driver", Component: Driver },
       { path: "login", Component: Login },
       { path: "auth/callback", Component: AuthCallback },
+      {
+        Component: ProtectedRoute,
+        children: [
+          { path: "ride", Component: Ride },
+          { path: "dispatch", Component: Dispatch },
+          { path: "track", Component: Track },
+          { path: "track/:id", Component: Track },
+          { path: "dashboard", Component: Dashboard },
+          { path: "wallet", Component: Wallet },
+          { path: "driver", Component: Driver },
+        ],
+      },
     ],
   },
   {
     path: "/admin",
-    Component: AdminLayout,
+    Component: ProtectedRoute,
     children: [
-      { index: true, Component: AdminOverview },
-      { path: "analytics", Component: AdminAnalytics },
-      { path: "accounting", Component: AdminAccounting },
-      { path: "users", Component: AdminUsers },
-      { path: "orders", Component: AdminOrders },
-      { path: "drivers", Component: AdminDrivers },
-      { path: "settings", Component: AdminSettings },
+      {
+        Component: AdminLayout,
+        children: [
+          { index: true, Component: AdminOverview },
+          { path: "analytics", Component: AdminAnalytics },
+          { path: "accounting", Component: AdminAccounting },
+          { path: "users", Component: AdminUsers },
+          { path: "orders", Component: AdminOrders },
+          { path: "drivers", Component: AdminDrivers },
+          { path: "settings", Component: AdminSettings },
+        ],
+      },
     ],
   },
 ]);

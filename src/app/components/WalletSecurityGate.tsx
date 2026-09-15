@@ -170,7 +170,7 @@ export default function WalletSecurityGate({ userId, onUnlock, onCancel }: Props
   }[state];
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end lg:items-center justify-center" style={{ background: "rgba(7,15,36,0.92)", backdropFilter: "blur(8px)" }}>
+    <div className="fixed inset-0 z-[200] flex items-end lg:items-center justify-center" style={{ background: "rgba(7,15,36,0.92)", backdropFilter: "blur(8px)" }}>
       <div className="w-full max-w-sm rounded-t-3xl lg:rounded-3xl p-6 pb-8" style={{ background: "#0D1F47", border: "1px solid rgba(186,216,247,0.1)" }}>
 
         {/* Header */}

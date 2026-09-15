@@ -1,6 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { MOCK_TRANSACTIONS } from "../data/constants";
 import { useAuth } from "../context/AuthContext";
+import WalletSecurityGate from "../components/WalletSecurityGate";
 
 const PAYSTACK_PUBLIC_KEY = "pk_test_a8d696328f6017bdc04e80ec0ed997410a85c5e0";
 const EDGE_BASE = "https://rbhptfneaqmfvdoafehq.supabase.co/functions/v1/make-server-a0892b1f";
@@ -25,6 +26,21 @@ const BANKS: Record<string, string> = {
 export default function Wallet() {
   const { user } = useAuth();
   const [tab, setTab] = useState<Tab>("overview");
+  const [securityGate, setSecurityGate] = useState(false);
+  const [pendingTab, setPendingTab] = useState<Tab | null>(null);
+  const [walletUnlocked, setWalletUnlocked] = useState(false);
+
+  const requireSecurity = (target: Tab) => {
+    if (walletUnlocked) { setTab(target); return; }
+    setPendingTab(target);
+    setSecurityGate(true);
+  };
+
+  const onUnlock = () => {
+    setSecurityGate(false);
+    setWalletUnlocked(true);
+    if (pendingTab) { setTab(pendingTab); setPendingTab(null); }
+  };
   const [topupAmount, setTopupAmount] = useState("");
   const [withdrawAmount, setWithdrawAmount] = useState("");
   const [bankName, setBankName] = useState("Opay");
@@ -144,6 +160,13 @@ export default function Wallet() {
 
   return (
     <div className="pt-20 pb-20 md:pb-8 min-h-screen px-4 max-w-2xl mx-auto">
+      {securityGate && (
+        <WalletSecurityGate
+          userId={user?.id ?? "guest"}
+          onUnlock={onUnlock}
+          onCancel={() => { setSecurityGate(false); setPendingTab(null); }}
+        />
+      )}
 
       {/* Balance card */}
       <div className="wallet-card rounded-3xl p-6 mb-6 text-center relative overflow-hidden">
@@ -155,15 +178,19 @@ export default function Wallet() {
         </p>
         <p className="text-[#BAD8F7]/40 text-sm mb-4">{userEmail}</p>
         <div className="flex gap-3 justify-center">
-          <button onClick={() => setTab("topup")} className="btn-primary px-6 py-2.5 rounded-xl text-sm">+ Top Up</button>
-          <button onClick={() => setTab("withdraw")} className="btn-outline px-6 py-2.5 rounded-xl text-sm">Withdraw →</button>
+          <button onClick={() => requireSecurity("topup")} className="btn-primary px-6 py-2.5 rounded-xl text-sm">+ Top Up</button>
+          <button onClick={() => requireSecurity("withdraw")} className="btn-outline px-6 py-2.5 rounded-xl text-sm">Withdraw →</button>
         </div>
       </div>
 
       {/* Tabs */}
       <div className="flex gap-1 bg-white/5 rounded-2xl p-1 mb-6">
         {TABS.map(t => (
-          <button key={t.id} onClick={() => { setTab(t.id); setWithdrawStep("form"); setWithdrawError(""); }}
+          <button key={t.id} onClick={() => {
+            setWithdrawStep("form"); setWithdrawError("");
+            if (t.id === "topup" || t.id === "withdraw") requireSecurity(t.id);
+            else setTab(t.id);
+          }}
             className={`flex-1 py-2.5 rounded-xl text-sm font-semibold transition-all ${tab === t.id ? "bg-[#F5820D] text-white" : "text-[#BAD8F7]/60 hover:text-white"}`}>
             {t.label}
           </button>

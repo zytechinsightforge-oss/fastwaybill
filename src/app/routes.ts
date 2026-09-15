@@ -7,6 +7,7 @@ import Track from "./pages/Track";
 import Dashboard from "./pages/Dashboard";
 import Wallet from "./pages/Wallet";
 import Driver from "./pages/Driver";
+import Settings from "./pages/Settings";
 import Login from "./pages/Login";
 import AuthCallback from "./pages/AuthCallback";
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -38,6 +39,7 @@ export const router = createBrowserRouter([
           { path: "dashboard", Component: Dashboard },
           { path: "wallet", Component: Wallet },
           { path: "driver", Component: Driver },
+          { path: "settings", Component: Settings },
         ],
       },
     ],

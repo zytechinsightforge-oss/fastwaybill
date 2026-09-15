@@ -8,6 +8,7 @@ const LINKS = [
   { to: "/track", label: "📡 Track" },
   { to: "/dashboard", label: "Dashboard" },
   { to: "/wallet", label: "Wallet" },
+  { to: "/settings", label: "⚙️ Settings" },
 ];
 
 export default function Nav() {
@@ -50,9 +51,9 @@ export default function Nav() {
                 <span className="text-white font-semibold">24,750</span>
               </Link>
               <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-full bg-[#F5820D]/20 border border-[#F5820D]/40 flex items-center justify-center text-sm font-bold text-[#F5820D]">
+                <Link to="/settings" className="w-8 h-8 rounded-full bg-[#F5820D]/20 border border-[#F5820D]/40 flex items-center justify-center text-sm font-bold text-[#F5820D] hover:bg-[#F5820D]/30 transition-all">
                   {(user.user_metadata?.full_name || user.email || "U")[0].toUpperCase()}
-                </div>
+                </Link>
                 <button onClick={signOut} className="text-[#BAD8F7]/50 text-xs hover:text-red-400 transition-colors hidden sm:block">Sign out</button>
               </div>
             </>
@@ -71,8 +72,8 @@ export default function Nav() {
           { to: "/", label: "Home", icon: "🏠" },
           { to: "/ride", label: "Ride", icon: "🚖" },
           { to: "/dispatch", label: "Send", icon: "📦" },
-          { to: "/dashboard", label: "Me", icon: "👤" },
           { to: "/wallet", label: "Wallet", icon: "💳" },
+          { to: "/settings", label: "Settings", icon: "⚙️" },
         ].map(l => (
           <Link key={l.to} to={l.to} className={`flex-1 flex flex-col items-center py-3 gap-0.5 text-xs ${
             pathname === l.to ? "text-[#F5820D]" : "text-[#BAD8F7]/50"
